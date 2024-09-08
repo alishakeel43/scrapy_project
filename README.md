@@ -24,28 +24,28 @@ cd <repository-directory>
 
    pip install -r requirements.txt
    
-4. **Setup Django Project**
+3. **Setup Django Project**
 
-Configure settings.py for your database and other settings.
-Apply migrations:
-python manage.py migrate
+   Configure settings.py for your database and other settings.
+   Apply migrations:
+   python manage.py migrate
 
 4. **Configure Scrapy and Selenium**
-Install Scrapy and Selenium.
-Ensure Chromedriver is installed and properly configured. according to insatlled googlechrome version.
+   Install Scrapy and Selenium.
+   Ensure Chromedriver is installed and properly configured. according to insatlled googlechrome version.
 5. **Run the Django Development Server**
-  python manage.py runserver
+   python manage.py runserver
 
 # Usage
 # Create or Update a Spider
 1. **Fill Out the Form**
 
-Navigate to the form page in your Django application. Enter the city, state ID, website URL, and XPaths.
+   Navigate to the form page in your Django application. Enter the city, state ID, website URL, and XPaths.
+   
 2.**Data Scraping and Confirmation**
 
-**Fetch Data:** The system uses Selenium to scrape data from the provided URL based on the specified XPaths.
-**Confirm Data:** Review the scraped data on a confirmation page. Confirm if the data is correct.
+   **Fetch Data:** The system uses Selenium to scrape data from the provided URL based on the specified XPaths.
+   **Confirm Data:** Review the scraped data on a confirmation page. Confirm if the data is correct.
 
 3. **Submit Data**
-
-After confirming the data, submit the form to store it in the database. The system will generate or update the spider file according to the provided city and state ID.
+   After confirming the data, submit the form to store it in the database. The system will generate or update the spider file according to the provided city and state ID.
