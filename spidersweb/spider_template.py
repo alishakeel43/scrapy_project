@@ -51,8 +51,29 @@ scrapy_start_requests_function =  """def start_requests(self):
                         WebDriverWait(self.driver, 30).until(
                             EC.presence_of_element_located((By.XPATH, xpath))
                         )
-                        element = self.driver.find_element(By.XPATH, xpath)
-                        extracted_data[key] = element.text if element else None
+                        
+                        if "email" in field_name.lower():
+                            # Try to extract email using "mailto:" link if available
+                            mailto_element = element.get_attribute("href") if element else None
+                            if mailto_element and "mailto:" in mailto_element:
+                                extracted_data[field_name] = mailto_element.replace("mailto:", "")
+                            else:
+                                # Fallback to the text if "tel:" link is not available
+                                extracted_data[field_name] = element.text if element else None
+
+                        elif any(keyword in field_name.lower() for keyword in ["tel", "phone"]):
+                            # Try to extract telephone number using "tel:" link if available
+                            tel_element = element.get_attribute("href") if element else None
+                            if tel_element and "tel:" in tel_element:
+                                extracted_data[field_name] = tel_element.replace("tel:", "")
+                            else:
+                                # Fallback to the text if "tel:" link is not available
+                                extracted_data[field_name] = element.text if element else None
+
+                        else:
+                            # Directly extract the text for the name
+                            extracted_data[field_name] = element.text if element else None
+
                     except Exception as e:
                         self.log(f"Element not found for XPath: {xpath}. Error: {e}", level=logging.WARNING)
                         extracted_data[key] = None  # Log missing elements as None
