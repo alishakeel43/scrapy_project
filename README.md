@@ -3,11 +3,15 @@ Overview
 This project is designed to provide a comprehensive web scraping solution using Django, Scrapy, and Selenium. It features a user-friendly interface for filling out a form to generate and manage Scrapy spiders dynamically. The solution fetches data from websites, allows users to confirm the data before storing it, and keeps track of XPaths and other configurations in the database.
 
 # Features
-**Dynamic Spider Creation**: Generate or update Scrapy spider files based on user-provided city and state IDs. The spiders are created from a template with dynamic XPath definitions.
-**Interactive Data Confirmation**: After scraping data using Selenium, display the data on a webpage for user confirmation. If the user confirms the data, it is stored in the database.
-**Form-Based Scraping:** Users can input details such as city, state ID, website URL, and XPaths through a form. The data is then fetched, confirmed, and stored as needed.
-**Database Integration**: Store the scraped data and XPaths in the database for future reference and updates.
-Error Handling and Logging: Includes robust logging and error handling to manage issues during the scraping process.
+1. **Dynamic Spider Creation**: Generate or update Scrapy spider files based on user-provided city and state IDs. The spiders are created from a template with dynamic XPath definitions.
+
+2. **Interactive Data Confirmation**: After scraping data using Selenium, display the data on a webpage for user confirmation. If the user confirms the data, it is stored in the database.
+
+3. **Form-Based Scraping:** Users can input details such as city, state ID, website URL, and XPaths through a form. The data is then fetched, confirmed, and stored as needed.
+
+4. **Database Integration**: Store the scraped data and XPaths in the database for future reference and updates.
+
+5. **Error Handling and Logging**: Includes robust logging and error handling to manage issues during the scraping process.
 
 1. **Clone the Repository**
 
@@ -22,10 +26,10 @@ Configure settings.py for your database and other settings.
 Apply migrations:
 python manage.py migrate
 
-4.**Configure Scrapy and Selenium**
+4. **Configure Scrapy and Selenium**
 Install Scrapy and Selenium.
 Ensure Chromedriver is installed and properly configured. according to insatlled googlechrome version.
-5. Run the Django Development Server
+5. **Run the Django Development Server**
   python manage.py runserver
 
 # Usage
