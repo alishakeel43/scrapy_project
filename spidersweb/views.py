@@ -26,9 +26,13 @@ def scrapy_submit(request):
             # Store records in the database
             if store_records_in_db(request):
 
-                file_created = generate_spider_file(request)
+                #  with create spider file 
+                # file_created = generate_spider_file(request)
                 
-                messages.success(request, f'Form submitted and data stored successfully! And Spider File is {"" if file_created else "not"} created')
+                # messages.success(request, f'Form submitted and data stored successfully! And Spider File is {"" if file_created else "not"} created')
+                
+                 #  without creation of spider file 
+                messages.success(request, f'Form submitted and data stored successfully!')
             else:
                 messages.error(request, 'Failed to store data in the database.')
         else:
