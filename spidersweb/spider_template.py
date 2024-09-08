@@ -46,7 +46,7 @@ scrapy_start_requests_function =  """def start_requests(self):
 
             extracted_data = {}
             for xpath_dict in self.xpaths:
-                for key, xpath in xpath_dict.items():
+                for field_name, xpath in xpath_dict.items():
                     try:
                         WebDriverWait(self.driver, 30).until(
                             EC.presence_of_element_located((By.XPATH, xpath))
@@ -76,7 +76,7 @@ scrapy_start_requests_function =  """def start_requests(self):
 
                     except Exception as e:
                         self.log(f"Element not found for XPath: {xpath}. Error: {e}", level=logging.WARNING)
-                        extracted_data[key] = None  # Log missing elements as None
+                        extracted_data[field_name] = None  # Log missing elements as None
 
             if not any(extracted_data.values()):
                 self.log("No elements were extracted.", level=logging.ERROR)
