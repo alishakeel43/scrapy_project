@@ -13,6 +13,8 @@ This project is designed to provide a comprehensive web scraping solution using 
 
 5. **Error Handling and Logging**: Includes robust logging and error handling to manage issues during the scraping process.
 
+# Installation 
+
 1. **Clone the Repository**
 
 git clone <repository-url>
