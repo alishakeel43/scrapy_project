@@ -8,7 +8,10 @@ from django.contrib import messages
 
 def scrape_view(request):
     if request.method == 'GET':
+        request.session.pop('form_data', None)
+        request.session.pop('scraped_records', None)
         form = ScrapyForm()
+
     
     return render(request, 'spidersweb/scrape_form.html', {'form': form})
 
@@ -43,8 +46,6 @@ def store_records_in_db(request):
         try:
             with transaction.atomic():
 
-                form_data['city'] = 'Sarasota'
-                form_data['state_id'] = 'FL'
                 record = Record.objects.filter(city=form_data['city'], state_id=form_data['state_id']).first()
 
                 if record:
@@ -70,9 +71,6 @@ def store_records_in_db(request):
                     website=form_data['website'],
                     defaults=filtered_form_data
                 )
-
-                del request.session['form_data']
-                del request.session['scraped_records']
 
                 return True
 
