@@ -21,7 +21,7 @@ git clone <repository-url>
 cd <repository-directory>
 
 2. **Install Dependencies**
-**pip install -r requirements.txt**
+     pip install -r requirements.txt
 3. **Setup Django Project**
 
 Configure settings.py for your database and other settings.
