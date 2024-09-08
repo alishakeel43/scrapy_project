@@ -41,8 +41,9 @@ This project is designed to provide a comprehensive web scraping solution using 
 1. **Fill Out the Form**
 
    Navigate to the form page in your Django application. Enter the city, state ID, website URL, and XPaths.
+
    
-2.**Data Scraping and Confirmation**
+2. **Data Scraping and Confirmation**
 
    **Fetch Data:** The system uses Selenium to scrape data from the provided URL based on the specified XPaths.
    **Confirm Data:** Review the scraped data on a confirmation page. Confirm if the data is correct.
