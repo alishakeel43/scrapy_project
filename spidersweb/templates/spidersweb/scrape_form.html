@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Scrape Form{% endblock %}
+
+{% block content %}
+<h2>Scrapy Form</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% elif message.tags == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmUpdateModal" tabindex="-1" aria-labelledby="confirmUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmUpdateModalLabel">Update Website</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>The website URL in the database is currently:</p>
+                <p><strong id="dbUrl"></strong></p>
+                <p>The new URL you provided is:</p>
+                <p><strong id="formUrl"></strong></p>
+                <p>Do you want to fetch data from this website and update the database URL with the new form URL?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmUpdateNo">No</button>
+                <button type="button" class="btn btn-primary" id="confirmUpdateYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+  
+
+<!-- Form for submitting data and viewing records -->
+<form id="scrapyForm" method="post" action="{% url 'scrapy_submit' %}" novalidate>
+    {% csrf_token %}
+    
+    <!-- Form fields -->
+    <div class="mb-3">
+        {{ form.city.label_tag }}
+        {{ form.city }}
+    </div>
+    <div class="mb-3">
+        {{ form.state_id.label_tag }}
+        {{ form.state_id }}
+    </div>
+    <div class="mb-3">
+        {{ form.website.label_tag }}
+        {{ form.website }}
+    </div>
+    <div class="mb-3">
+        {{ form.municipality_main_tel_xpath.label_tag }}
+        {{ form.municipality_main_tel_xpath }}
+    </div>
+    <div class="mb-3">
+        {{ form.building_department_main_email_xpath.label_tag }}
+        {{ form.building_department_main_email_xpath }}
+    </div>
+    <div class="mb-3">
+        {{ form.building_department_main_phone_xpath.label_tag }}
+        {{ form.building_department_main_phone_xpath }}
+    </div>
+    <div class="mb-3">
+        {{ form.chief_building_official_name_xpath.label_tag }}
+        {{ form.chief_building_official_name_xpath }}
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary">Submit & Next</button>
+    <button type="button" id="viewRecordsBtn" class="btn btn-info">Show Records</button>
+</form>
+
+<!-- Area to display results from AJAX call -->
+<div id="result" class="mt-4">
+    <!-- Results will be appended here -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        
+        function fetchRecords(formData) {
+
+            $('#result').html(
+                    '<div class="alert alert-info">Please wait! Data is being fetched from your provided URL.</div>'
+                );
+
+            return $.ajax({
+                url: "{% url 'view_records' %}",
+                type: "POST",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: formData,
+                success: function(response) {
+                    if (response.records) {
+                        $('#result').html(
+                            '<div class="alert alert-info">Records:</div>' +
+                            '<pre>' + JSON.stringify(response.records, null, 2) + '</pre>'
+                        );
+                    } else if (response.message) {
+                        $('#result').html(
+                            '<div class="alert alert-info">' + response.message + '</div>'
+                        );
+                    }
+                },
+                error: function(xhr) {
+                    var errorMessage = 'Failed to retrieve records. Please try again.';
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.errors) {
+                            errorMessage = '<ul>';
+                            for (var field in response.errors) {
+                                if (response.errors.hasOwnProperty(field)) {
+                                    response.errors[field].forEach(function(error) {
+                                        errorMessage += '<li>' + field + ': ' + error + '</li>';
+                                    });
+                                }
+                            }
+                            errorMessage += '</ul>';
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse error response:', e);
+                    }
+
+                    $('#result').html(
+                        '<div class="alert alert-danger">' + errorMessage + '</div>'
+                    );
+                }
+            });
+        }
+
+        
+
+        $('#viewRecordsBtn').on('click', function() {
+            var button = $(this);
+            var formData = $('#scrapyForm').serialize();
+
+            // Disable the button
+            button.prop('disabled', true);
+
+            // Check if website needs to be updated
+            $.ajax({
+                url: "{% url 'check_website' %}",
+                type: "POST",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: formData,
+                success: function(response) {
+                    if (response.needs_update) {
+                        // Show confirmation modal
+                        $('#dbUrl').text(response.old_website_url);
+                        $('#formUrl').text(response.new_website_url);
+
+
+                        $('#confirmUpdateModal').modal('show');
+
+                        // On confirmation
+                        $('#confirmUpdateYes').on('click', function() {
+                            $('#confirmUpdateModal').modal('hide');
+                            fetchRecords(formData).always(function() {
+                                button.prop('disabled', false);
+                            });
+                        });
+
+                        // On cancellation
+                        $('#confirmUpdateNo').on('click', function() {
+                            $('#confirmUpdateModal').modal('hide');
+                            $('#result').html(
+                                '<div class="alert alert-info">Please check the URL and try again.</div>'
+                            );
+                            button.prop('disabled', false);
+                        });
+                    } else {
+                        fetchRecords(formData).always(function() {
+                            button.prop('disabled', false);
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    var errorMessage = 'Failed to retrieve records. Please try again.';
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log(response.errors)
+                        if (response.errors) {
+                            errorMessage = '<ul>';
+                            for (var field in response.errors) {
+                                if (response.errors.hasOwnProperty(field)) {
+                                    response.errors[field].forEach(function(error) {
+                                        errorMessage += '<li>' + field + ': ' + error + '</li>';
+                                    });
+                                }
+                            }
+                            errorMessage += '</ul>';
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse error response:', e);
+                    }
+
+                    $('#result').html(
+                        '<div class="alert alert-danger">' + errorMessage + '</div>'
+                    );
+                    button.prop('disabled', false);
+                }
+            });
+        });
+        
+        $('#confirmUpdateModal > div > div > div.modal-header > button').on('click', function () {
+            var button = $('#viewRecordsBtn');
+            if (button.length) {
+                button.prop('disabled', false);
+            }
+        });
+
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check if the form has been submitted
+        if (window.location.search.includes('form_submitted=true')) {
+            // Clear the form fields
+            document.querySelector('#scrapyForm').reset();
+            // Optionally, you could also remove the success message if needed
+        }
+    });
+</script>
+{% endblock %}
