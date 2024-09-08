@@ -17,8 +17,8 @@ This project is designed to provide a comprehensive web scraping solution using 
 
 1. **Clone the Repository**
 
-git clone <repository-url>
-cd <repository-directory>
+   git clone <repository-url>
+   cd <repository-directory>
 
 2. **Install Dependencies**
 
