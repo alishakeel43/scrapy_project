@@ -71,8 +71,8 @@ def store_records_in_db(request):
                     defaults=filtered_form_data
                 )
 
-                # del request.session['form_data']
-                # del request.session['scraped_records']
+                del request.session['form_data']
+                del request.session['scraped_records']
 
                 return True
 
