@@ -1,0 +1,19 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Scrape Form{% endblock %}
+
+{% block content %}
+
+{% if message %}
+    <div class="custom-completion-message p-4 my-4 rounded bg-light text-center">
+        <h2 class="text-success mb-3">{{ message }}</h2>
+        <p>Click on this button to work on the next 100 websites:</p>
+        <a href="{% url 'scrape_view' %}?start_id={{ next_start_id }}&end_id={{ next_end_id }}" class="btn btn-primary">
+            Work on Next 100 Websites
+        </a>
+    </div>
+{% endif %}
+
+
+{% endblock %}

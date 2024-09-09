@@ -2,6 +2,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 class ScrapyForm(forms.Form):
+
+    start_id = forms.CharField(widget=forms.HiddenInput())
+    end_id = forms.CharField(widget=forms.HiddenInput())
+        
     city = forms.CharField(label='City', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
     state_id = forms.CharField(label='State ID', max_length=2, widget=forms.TextInput(attrs={'class': 'form-control'}),required=True)
     website = forms.URLField(label='Website URL', widget=forms.URLInput(attrs={'class': 'form-control'}),required=True)

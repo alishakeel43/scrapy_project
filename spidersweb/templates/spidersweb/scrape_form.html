@@ -3,7 +3,11 @@
 {% block title %}Scrape Form{% endblock %}
 
 {% block content %}
-<h2>Scrapy Form</h2>
+<h2>Scrapy Form 
+{% if start_id and end_id %}
+    <p class="text-muted">Start ID: {{ start_id }} | End ID: {{ end_id }} | Pending Websites: {{ difference }}</p>
+{% endif %}
+</h2>
 
 {% if messages %}
     {% for message in messages %}
@@ -66,6 +70,12 @@
     
     <!-- Form fields -->
     <div class="mb-3">
+        {{ form.start_id }}
+    </div>
+    <div class="mb-3">
+        {{ form.end_id }}
+    </div>
+    <div class="mb-3">
         {{ form.city.label_tag }}
         {{ form.city }}
     </div>
@@ -78,8 +88,8 @@
         {{ form.website }}
     </div>
     <div class="mb-3">
-        {{ form.municipality_main_tel_xpath.label_tag }}
-        {{ form.municipality_main_tel_xpath }}
+        {{ form.chief_building_official_name_xpath.label_tag }}
+        {{ form.chief_building_official_name_xpath }}
     </div>
     <div class="mb-3">
         {{ form.building_department_main_email_xpath.label_tag }}
@@ -90,12 +100,13 @@
         {{ form.building_department_main_phone_xpath }}
     </div>
     <div class="mb-3">
-        {{ form.chief_building_official_name_xpath.label_tag }}
-        {{ form.chief_building_official_name_xpath }}
+        {{ form.municipality_main_tel_xpath.label_tag }}
+        {{ form.municipality_main_tel_xpath }}
     </div>
 
+
     <!-- Buttons -->
-    <button type="submit" class="btn btn-primary">Submit & Next</button>
+    <button type="submit" id="formSubmitBtn" class="btn btn-primary" disabled>Submit & Next</button>
     <button type="button" id="viewRecordsBtn" class="btn btn-info">Show Records</button>
 </form>
 
@@ -109,7 +120,6 @@
     $(document).ready(function() {
         
         function fetchRecords(formData) {
-
             $('#result').html(
                     '<div class="alert alert-info">Please wait! Data is being fetched from your provided URL.</div>'
                 );
@@ -124,10 +134,43 @@
                 data: formData,
                 success: function(response) {
                     if (response.records) {
-                        $('#result').html(
-                            '<div class="alert alert-info">Records:</div>' +
-                            '<pre>' + JSON.stringify(response.records, null, 2) + '</pre>'
-                        );
+
+                        var tableHtml = '<div class="alert alert-info">Comparison Table:</div>' +
+                                        '<table class="table table-bordered">' +
+                                        '<thead>' +
+                                            '<tr>' +
+                                                '<th>Key</th>' +
+                                                '<th>Scrapy Value</th>' +
+                                                '<th>Old DB Value</th>' +
+                                            '</tr>' +
+                                        '</thead>' +
+                                        '<tbody>';
+
+                        // Combine the keys from both records and old_db_record
+                        var keys = new Set([...Object.keys(response.records), ...Object.keys(response.old_db_record)]);
+
+                        keys.forEach(function(key) {
+                            var scrapyValue = response.records[key] !== undefined ? response.records[key] : 'N/A';
+                            var oldDbValue = response.old_db_record[key] !== undefined ? response.old_db_record[key] : 'N/A';
+
+                            tableHtml += '<tr>' +
+                                            '<td>' + key + '</td>' +
+                                            '<td>' + (scrapyValue === null ? 'N/A' : scrapyValue) + '</td>' +
+                                            '<td>' + oldDbValue + '</td>' +
+                                        '</tr>';
+                        });
+
+                        tableHtml += '</tbody></table>';
+
+                        $('#result').html(tableHtml);
+                        
+                        // $('#result').html(
+                        //     '<div class="alert alert-info">Records:</div>' +
+                        //     '<pre>' + JSON.stringify(response.records, null, 2) + '</pre>' +
+                        //     '<div class="alert alert-info">Old Database Record:</div>' +
+                        //     '<pre>' + JSON.stringify(response.old_db_record, null, 2) + '</pre>'
+                        // );
+                        $("#formSubmitBtn").prop('disabled', false);
                     } else if (response.message) {
                         $('#result').html(
                             '<div class="alert alert-info">' + response.message + '</div>'
@@ -156,6 +199,8 @@
                     $('#result').html(
                         '<div class="alert alert-danger">' + errorMessage + '</div>'
                     );
+
+                    $("#formSubmitBtn").prop('disabled', true);
                 }
             });
         }
