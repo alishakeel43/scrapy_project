@@ -8,6 +8,7 @@ from scrapy.http import HtmlResponse
 from .spider_template import SPIDER_TEMPLATE, scrapy_parse_function,scrapy_start_requests_function
 import os
 import re
+from .utils import extract_phone_numbers, extract_email
 
 
 class ScrapingService:
@@ -60,6 +61,13 @@ class ScrapingService:
                         else:
                             # Fallback to the text if "tel:" link is not available
                             extracted_data[field_name] = element.text if element else None
+                            
+                        
+                        if extracted_data[field_name] :
+                            email_addresses = extract_email(extracted_data[field_name])
+
+                            if email_addresses:
+                                    extracted_data[field_name] = email_addresses[0]
 
 
                     elif any(keyword in field_name.lower() for keyword in ["tel", "phone"]):
@@ -71,10 +79,19 @@ class ScrapingService:
                             # Fallback to the text if "tel:" link is not available
                             extracted_data[field_name] = element.text if element else None
 
+
+                            phone_numbers = extract_phone_numbers(extracted_data[field_name])
+
+                            if extracted_data[field_name]:
+                                phone_numbers = extract_phone_numbers(extracted_data[field_name])
+
+                                if phone_numbers:
+                                        extracted_data[field_name] = phone_numbers[0]
+
+
                     else:
                         # Directly extract the text for the name
                         extracted_data[field_name] = element.text if element else None
-
 
                 except Exception as e:
                     self.logger.warning(f"Element not found for XPath: {xpath}. Error: {e}")
