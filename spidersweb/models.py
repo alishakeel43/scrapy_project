@@ -10,6 +10,7 @@ class WebsiteXPath(models.Model):
     building_department_main_email_xpath = models.TextField(blank=True, null=True)
     building_department_main_phone_xpath = models.TextField(blank=True, null=True)
     chief_building_official_name_xpath = models.TextField(blank=True, null=True)
+    skip_website = models.BooleanField(default=False) 
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

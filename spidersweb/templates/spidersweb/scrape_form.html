@@ -108,6 +108,7 @@
     <!-- Buttons -->
     <button type="submit" id="formSubmitBtn" class="btn btn-primary" disabled>Submit & Next</button>
     <button type="button" id="viewRecordsBtn" class="btn btn-info">Show Records</button>
+    <button type="button" id="skipWebsiteBtn" class="btn btn-warning">Skip Website</button>
 </form>
 
 <!-- Area to display results from AJAX call -->
@@ -118,6 +119,32 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+
+
+        $('#skipWebsiteBtn').click(function() {
+            const form = $('#scrapyForm');
+            const formData = form.serialize(); // Serialize form data
+            
+            $.ajax({
+                url: '{% url "skip_website" %}', // Replace with the actual URL name for your Django view
+                method: 'POST',
+                data: formData + '&action=skip_website', // Add an extra field to indicate skip action
+                headers: {
+                    'X-CSRFToken': form.find('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function(data) {
+                    if (data.success) {
+                        window.location.href = data.redirect_url; // Redirect to the URL provided in the response
+                    } else {
+                        alert('Failed to skip the website URL.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    
         
         function fetchRecords(formData) {
             $('#result').html(

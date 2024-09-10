@@ -310,3 +310,34 @@ def get_record_not_in_website_xpath_rawsql(start_id='', end_id=''):
             result = None
     return result
 
+
+def skip_website(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'skip_website':
+
+            start_id = request.POST.get('start_id')
+            end_id = request.POST.get('end_id')
+            # Extract form data
+            city = request.POST.get('city')
+            state_id = request.POST.get('state_id')
+            website = request.POST.get('website')
+            skip_website = request.POST.get('skip_website') == 'on'
+            try:
+                with transaction.atomic():
+                    obj, created = WebsiteXPath.objects.select_for_update().get_or_create(
+                        city=city,
+                        state_id=state_id,
+                        website=website,
+                        defaults={'skip_website': skip_website}
+                    )
+                # Process the form data as needed
+                # For example, you might update the database or perform other actions
+                if start_id and end_id :
+                    start_id = int(start_id) + 1
+                    end_id = int(end_id)
+                    target_url = reverse('scrape_view') + f'?start_id={start_id}&end_id={end_id}'
+
+                return JsonResponse({'success': True, 'redirect_url': target_url})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)}, status=400)
